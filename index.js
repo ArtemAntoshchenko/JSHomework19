@@ -6,7 +6,8 @@ class Vehicle {
         this.speed = 0
         this.engine = false
     }
-
+    // Из-за того, что мы прописали throw new Error, этот класс или любой класс-наследник при вызове метода startEngine(), по умолчанию, получит ошибку.
+    // По этому в классах-наследниках мы переопределяем метод startEngine()
     startEngine() {
         throw new Error("Метод должен быть в подклассе");
     }
@@ -40,12 +41,14 @@ class Vehicle {
 }
 
 class GasolineCar extends Vehicle {
+    // Наследование параметров родительского класса
     constructor(brand, model, year, fuelCapacity) {
         super(brand, model, year);
+    //
         this.fuelCapacity = fuelCapacity; 
         this.currentFuel = fuelCapacity; 
     }
-
+    // Полиморфизм, переопределяем метод запуска двигателя для автомобиля на бензине, путём добавления условия и, при выполненном условии, переключения this.engine в true
     startEngine() {
         if (this.currentFuel <= 0) {
             console.log("Нет топлива! Едь на росНефть");
@@ -60,7 +63,8 @@ class GasolineCar extends Vehicle {
         this.currentFuel = Math.min(this.fuelCapacity, this.currentFuel + liters); 
         console.log(`Заправлено. Топлива ${this.currentFuel} литров. ${this.fuelCapacity}`)
     }
-
+    // Полиморфизм, переопределяем метод ускорения для автомобиля на бензине, путём добавления переменной fuelConsumption и условия. А также, при выполненном условии,
+    // вычитания fuelConsumption из currentFuel и выводе в консоль информации об ускорении автомобиля
     acceleration(amount) {
         if (!this.startEngine()) return; 
         let fuelConsumption = amount * 0.1; 
@@ -79,8 +83,10 @@ class GasolineCar extends Vehicle {
 }
 
 class ElecrticCar extends Vehicle {
+    // Наследование параметров родительского класса
     constructor(brand, model, year, batteryCapacity) {
         super(brand, model, year);
+    //
         this.batteryCapacity = batteryCapacity 
         this.currentCharge = batteryCapacity 
     }
@@ -121,13 +127,16 @@ class ElecrticCar extends Vehicle {
 }
 
 class HybridCar extends GasolineCar {
+    // Наследование параметров родительского класса
     constructor(brand, model, year, fuelCapacity, batteryCapacity) {
         super(brand, model, year, fuelCapacity);
+    //
         this.batteryCapacity = batteryCapacity;
         this.currentCharge = batteryCapacity;
         this.electricMode = false;
     }
-
+    // Полиморфизм, переопределяем метод запуска двигателя для гибридного автомобиля, путём добавления нескольких условий для разных режимов и,
+    // при выполненных условиях, переключения this.engine в true
     startEngine() {
         if (this.currentCharge > 0) {
             this.engine = true;
@@ -135,7 +144,6 @@ class HybridCar extends GasolineCar {
             console.log(`${this.getInfo()} двигатель запущен (электрический режим)`);
             return true;
         }
-
         else if (this.currentFuel > 0) {
             this.engine = true;
             this.electricMode = false;
@@ -144,6 +152,13 @@ class HybridCar extends GasolineCar {
         }
         console.log("Нет заряда и топлива")
         return false;
+    }
+
+    switchMode(){
+        if (this.electricMode){
+            this.electricMode=false
+            console.log('Переключение на бензин')
+        }
     }
 
     // Полиморфизм. Переопределяем ускорение для гибрида
@@ -181,14 +196,29 @@ class HybridCar extends GasolineCar {
 }
 
 class DieselCar extends Vehicle{
+    // Наследование параметров родительского класса
     constructor(brand, model, year, fuelCapacity, season) {
         super(brand, model, year);
+    //
         this.fuelCapacity = fuelCapacity; 
         this.currentFuel = fuelCapacity;
         this.season = season;
-        this.typeOfDiesel = 'SummerType'
+        this._typeOfDiesel = 'SummerType'
+    }
+    // Пример инкапсуляции
+    get typeOfDiesel() {
+        return this._typeOfDiesel
     }
 
+    set typeOfDiesel(newType){
+        if (newType=''){
+            throw new Error("Введите текст");
+        }
+        this._typeOfDiesel=newType
+    }
+    //
+    // Полиморфизм, переопределяем метод запуска двигателя для автомобиля на дизеле, путём добавления нескольких условий, в том числе условия для разных сезонов, и,
+    // при выполненных условиях, переключения this.engine в true
     startEngine() {
         if (this.currentFuel <= 0) {
             console.log("Нет топлива! Едь на росНефть");
@@ -212,7 +242,7 @@ class DieselCar extends Vehicle{
         this.currentFuel = Math.min(this.fuelCapacity, this.currentFuel + liters); 
         console.log(`Заправлено. Топлива ${this.currentFuel} литров. ${this.fuelCapacity}`)
     }
-
+    // Полиморфизм. Переопределяем ускорение для дизельного автомобиля
     acceleration(amount) {
         if (!this.startEngine()) return; 
         let fuelConsumption = amount * 0.1; 
@@ -248,6 +278,17 @@ function testDrive(vehicle) {
 
 function testDrive1(vehicle) {
     console.log('Тест драйв для:', vehicle.getInfo())
+    vehicle.startEngine();
+    vehicle.acceleration(5);
+    vehicle.brake(15);
+    vehicle.honk();
+    vehicle.switchMode();
+    vehicle.acceleration(5);
+    vehicle.startEngine();
+}
+
+function testDrive2(vehicle) {
+    console.log('Тест драйв для:', vehicle.getInfo())
     vehicle.switchDieselType();
     console.log(vehicle.getInfo());
     vehicle.startEngine();
@@ -267,5 +308,6 @@ let dieselCar = new DieselCar('LADA','VAZ-21215', 2020, 83, 'winter')
 testDrive(gasolineCar)
 testDrive(electricCar)
 testDrive(hybridCar)
+testDrive1(hybridCar)
 testDrive(dieselCar)
-testDrive1(dieselCar)
+testDrive2(dieselCar)
