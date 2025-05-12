@@ -154,13 +154,18 @@ class HybridCar extends GasolineCar {
         return false;
     }
 
-    switchMode(){
+    switchModeDisel(){
         if (this.electricMode){
             this.electricMode=false
-            console.log('Переключение на бензин')
+            console.log('Переключение на дизель')
         }
     }
-
+    switchModeElectricity(){
+        if (!this.electricMode){
+            this.electricMode=true
+            console.log('Переключение на электричество')
+        }
+    }
     // Полиморфизм. Переопределяем ускорение для гибрида
     acceleration(amount) {
         if (this.electricMode) { 
@@ -282,9 +287,10 @@ function testDrive1(vehicle) {
     vehicle.acceleration(5);
     vehicle.brake(15);
     vehicle.honk();
-    vehicle.switchMode();
+    vehicle.switchModeDisel();
     vehicle.acceleration(5);
     vehicle.startEngine();
+    vehicle.switchModeElectricity();
 }
 
 function testDrive2(vehicle) {
